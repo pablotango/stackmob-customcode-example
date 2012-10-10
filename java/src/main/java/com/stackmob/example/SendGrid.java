@@ -58,8 +58,8 @@ import java.io.UnsupportedEncodingException;
 public class SendGrid implements CustomCodeMethod {
 
   //Create your SendGrid Acct at sendgrid.com
-  static String API_USER = "SidneyAllen";
-  static String API_KEY = "stackmob123";
+  static String API_USER = "YOUR_SENDGRID_USERNAME";
+  static String API_KEY = "YOUR_SENDGRID_PASSWORD";
 
   @Override
   public String getMethodName() {
@@ -185,11 +185,9 @@ public class SendGrid implements CustomCodeMethod {
           
       PostRequest req = new PostRequest(url,set,body);
 
-
       HttpResponse resp = http.post(req);
       responseCode = resp.getCode();
       responseBody = resp.getBody();
-
                   
     } catch(TimeoutException e) {
       logger.error(e.getMessage(), e);
