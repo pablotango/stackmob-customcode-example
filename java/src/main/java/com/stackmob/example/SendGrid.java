@@ -44,8 +44,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.HashSet;
 import java.util.Set;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 
 // Added JSON parsing to handle JSON posted in the body
@@ -54,11 +52,14 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
+import java.net.URLEncoder;
+import java.io.UnsupportedEncodingException;
+
 public class SendGrid implements CustomCodeMethod {
 
   //Create your SendGrid Acct at sendgrid.com
-  static String API_USER = "YOUR_SENDGRID_USERNAME";
-  static String API_KEY = "YOUR_SENDGRID_PASSWORD";
+  static String API_USER = "SidneyAllen";
+  static String API_KEY = "stackmob123";
 
   @Override
   public String getMethodName() {
@@ -83,9 +84,7 @@ public class SendGrid implements CustomCodeMethod {
     String to = "";
     String toname = "";
     String body = "";
-    String url = "";    
-    String api_user = API_USER;
-    String api_key = API_KEY;
+    String url = "";
     
     LoggerService logger = serviceProvider.getLoggerService(SendGrid.class);
     //Log the JSON object passed to the StackMob Logs
@@ -159,22 +158,20 @@ public class SendGrid implements CustomCodeMethod {
     if (subject == null || subject.equals("")) {
       logger.error("Subject is missing");
     }
-    
-    String queryParams = "api_user=" + api_user + "&api_key=" + api_key + "&to=" + to + "&toname=" + toname + "&subject=" + subject + "&text=" + text + "&from=" + from;
-  
+
+    //Encode any parameters that need encoding (i.e. subject, toname, text)
     try {
-      URI uri = new URI(
-        "https", 
-        "sendgrid.com", 
-        "/api/mail.send.json",
-        queryParams,
-        null);
-      url = uri.toASCIIString();
-    } catch (URISyntaxException e) {
+      subject = URLEncoder.encode(subject, "UTF-8");
+      text = URLEncoder.encode(text, "UTF-8");
+      toname = URLEncoder.encode(toname, "UTF-8");
+
+    } catch (UnsupportedEncodingException e) {
       logger.error(e.getMessage(), e);
-      responseCode = -1;
-      responseBody = e.getMessage();    
     }
+    
+    String queryParams = "api_user=" + API_USER + "&api_key=" + API_KEY + "&to=" + to + "&toname=" + toname + "&subject=" + subject + "&text=" + text + "&from=" + from;
+
+    url =  "https://www.sendgrid.com/api/mail.send.json?" + queryParams;
  
     Header accept = new Header("Accept-Charset", "utf-8");
     Header content = new Header("Content-Type", "application/x-www-form-urlencoded");
@@ -182,15 +179,17 @@ public class SendGrid implements CustomCodeMethod {
     Set<Header> set = new HashSet();
     set.add(accept);
     set.add(content);
-  
+
     try {  
       HttpService http = serviceProvider.getHttpService();
           
       PostRequest req = new PostRequest(url,set,body);
-             
+
+
       HttpResponse resp = http.post(req);
       responseCode = resp.getCode();
       responseBody = resp.getBody();
+
                   
     } catch(TimeoutException e) {
       logger.error(e.getMessage(), e);
@@ -212,10 +211,10 @@ public class SendGrid implements CustomCodeMethod {
       responseCode = -1;
       responseBody = e.getMessage();
     }
-      
+
     Map<String, Object> map = new HashMap<String, Object>();
     map.put("response_body", responseBody);
-     
+
     return new ResponseToProcess(responseCode, map);
   }
 }
