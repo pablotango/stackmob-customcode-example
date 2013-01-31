@@ -17,20 +17,33 @@
 package com.stackmob.example;
 
 import com.stackmob.core.customcode.CustomCodeMethod;
-import com.stackmob.core.jar.JarEntryObject;
+import com.stackmob.core.rest.ProcessedAPIRequest;
+import com.stackmob.core.rest.ResponseToProcess;
+import com.stackmob.sdkapi.SDKServiceProvider;
 
+import java.net.HttpURLConnection;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-public class EntryPointExtender extends JarEntryObject {
+public class PushRegistration implements CustomCodeMethod {
 
   @Override
-  public List<CustomCodeMethod> methods() {
-    List<CustomCodeMethod> list = new ArrayList<CustomCodeMethod>();
-    list.add(new HelloWorld());
-    list.add(new PushRegistration());
-    list.add(new SendGrid());
-    return list;
+  public String getMethodName() {
+    return "push_registration";
+  }
+
+  @Override
+  public List<String> getParams() {
+    return new ArrayList<String>();
+  }
+
+  @Override
+  public ResponseToProcess execute(ProcessedAPIRequest request, SDKServiceProvider serviceProvider) {
+    Map<String, Object> map = new HashMap<String, Object>();
+    map.put("msg", "Push, Registration!");
+    return new ResponseToProcess(HttpURLConnection.HTTP_OK, map);
   }
 
 }
